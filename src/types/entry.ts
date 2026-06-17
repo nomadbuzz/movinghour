@@ -1,5 +1,6 @@
 export interface Entry {
   id: string;
+  userEmail: string;
   date: string;
   workHours: number;
   travelHours: number;

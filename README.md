@@ -5,6 +5,7 @@ A production-ready web app for tracking moving job earnings. Built with Next.js,
 ## Features
 
 - Google OAuth sign-in
+- Row-level data isolation — each user only sees their own entries
 - Dashboard with earnings summary cards
 - Date range filtering
 - Add, edit, and delete job entries
@@ -91,9 +92,15 @@ Open [http://localhost:3000](http://localhost:3000).
 8. Rename the first sheet tab to **`Jobs`**.
 9. Add header row in row 1:
 
-   | A   | B    | C          | D            | E       | F    |
-   |-----|------|------------|--------------|---------|------|
-   | ID  | Date | Work Hours | Travel Hours | Reviews | Tips |
+   | A   | B          | C    | D          | E            | F       | G    |
+   |-----|------------|------|------------|--------------|---------|------|
+   | ID  | User Email | Date | Work Hours | Travel Hours | Reviews | Tips |
+
+   > **Migrating an existing sheet?** If your sheet uses the old 6-column layout, run:
+   > ```bash
+   > npm run migrate-sheet -- your-email@gmail.com
+   > ```
+   > See [Sheet Migration](#sheet-migration) below.
 
 10. Copy the Spreadsheet ID from the URL:
     ```
@@ -142,6 +149,29 @@ NEXTAUTH_URL=http://localhost:3000
 earnings = (workHours + travelHours) × $25 + (reviews × $20) + tips
 ```
 
+## Sheet Migration
+
+If your Google Sheet was created before row-level ownership was added, existing rows use the old 6-column layout without a **User Email** column. Those rows are invisible to all users until migrated.
+
+Run the migration script to:
+
+1. Insert a **User Email** column (column B) if missing
+2. Update the header row to the new 7-column format
+3. Assign all existing rows to the specified email address
+
+```bash
+npm run migrate-sheet -- your-email@gmail.com
+```
+
+Use the Google account email that should own the existing data. The script reads credentials from `.env.local`.
+
+**Security notes:**
+
+- Ownership is enforced server-side using `session.user.email` from NextAuth
+- The API never accepts `userEmail` from the client
+- Users can only read, update, or delete rows where `User Email` matches their session email
+- Rows with a missing email are excluded from all queries until migrated
+
 ## Project Structure
 
 ```
@@ -157,7 +187,8 @@ src/
     ui/                 # shadcn/ui components
   lib/
     auth.ts             # NextAuth configuration
-    googleSheets.ts     # Sheets CRUD (getEntries, createEntry, updateEntry, deleteEntry)
+    googleSheets.ts     # Sheets CRUD with row-level ownership
+    session.ts          # Session email helpers
     calculations.ts     # Earnings calculations
     format.ts           # Currency and date formatting
   types/
@@ -167,10 +198,11 @@ src/
 ## Scripts
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Production build
-npm run start    # Start production server
-npm run lint     # Run ESLint
+npm run dev            # Start development server
+npm run build          # Production build
+npm run start          # Start production server
+npm run lint           # Run ESLint
+npm run migrate-sheet  # Migrate sheet to User Email column (see above)
 ```
 
 ## License

@@ -3,14 +3,21 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { deleteEntry, updateEntry } from "@/lib/googleSheets";
+import {
+  getSessionEmail,
+  isNotFoundError,
+  isUnauthorizedError,
+} from "@/lib/session";
 
-const entrySchema = z.object({
-  date: z.string().min(1),
-  workHours: z.number().min(0),
-  travelHours: z.number().min(0),
-  reviews: z.number().min(0),
-  tips: z.number().min(0),
-});
+const entrySchema = z
+  .object({
+    date: z.string().min(1),
+    workHours: z.number().min(0),
+    travelHours: z.number().min(0),
+    reviews: z.number().min(0),
+    tips: z.number().min(0),
+  })
+  .strict();
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -18,7 +25,9 @@ type RouteContext = {
 
 export async function PUT(request: Request, context: RouteContext) {
   const session = await auth();
-  if (!session) {
+  const email = getSessionEmail(session);
+
+  if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,14 +44,17 @@ export async function PUT(request: Request, context: RouteContext) {
       );
     }
 
-    const entry = await updateEntry(id, parsed.data);
+    const entry = await updateEntry(id, parsed.data, email);
+    return NextResponse.json(entry);
+  } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
-    if (!entry) {
+    if (isNotFoundError(error)) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    return NextResponse.json(entry);
-  } catch (error) {
     console.error("Failed to update entry:", error);
     return NextResponse.json(
       { error: "Failed to update entry" },
@@ -53,21 +65,26 @@ export async function PUT(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   const session = await auth();
-  if (!session) {
+  const email = getSessionEmail(session);
+
+  if (!email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await context.params;
 
   try {
-    const deleted = await deleteEntry(id);
+    await deleteEntry(id, email);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
-    if (!deleted) {
+    if (isNotFoundError(error)) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
     console.error("Failed to delete entry:", error);
     return NextResponse.json(
       { error: "Failed to delete entry" },
