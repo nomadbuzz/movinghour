@@ -11,7 +11,10 @@ export default auth((req) => {
     return;
   }
 
-  if (pathname.startsWith("/dashboard") && !isLoggedIn) {
+  if (
+    (pathname.startsWith("/dashboard") || pathname.startsWith("/settings")) &&
+    !isLoggedIn
+  ) {
     return Response.redirect(new URL("/login", req.nextUrl.origin));
   }
 

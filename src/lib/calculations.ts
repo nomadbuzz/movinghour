@@ -1,23 +1,31 @@
 import type { Entry } from "@/types/entry";
+import { DEFAULT_HOURLY_RATE } from "@/types/settings";
 
-export const HOURLY_RATE = 25;
+export { DEFAULT_HOURLY_RATE };
 export const REVIEW_BONUS = 20;
 
 export function calculateEarnings(
   workHours: number,
   travelHours: number,
   reviews: number,
-  tips: number
+  tips: number,
+  hourlyRate: number
 ): number {
-  return (workHours + travelHours) * HOURLY_RATE + reviews * REVIEW_BONUS + tips;
+  return (
+    (workHours + travelHours) * hourlyRate + reviews * REVIEW_BONUS + tips
+  );
 }
 
-export function calculateEntryEarnings(entry: Entry): number {
+export function calculateEntryEarnings(
+  entry: Entry,
+  hourlyRate: number
+): number {
   return calculateEarnings(
     entry.workHours,
     entry.travelHours,
     entry.reviews,
-    entry.tips
+    entry.tips,
+    hourlyRate
   );
 }
 
@@ -36,9 +44,12 @@ export function calculateTotalTips(entries: Entry[]): number {
   return entries.reduce((total, entry) => total + entry.tips, 0);
 }
 
-export function calculateTotalEarnings(entries: Entry[]): number {
+export function calculateTotalEarnings(
+  entries: Entry[],
+  hourlyRate: number
+): number {
   return entries.reduce(
-    (total, entry) => total + calculateEntryEarnings(entry),
+    (total, entry) => total + calculateEntryEarnings(entry, hourlyRate),
     0
   );
 }

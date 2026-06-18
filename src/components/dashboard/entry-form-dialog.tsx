@@ -46,6 +46,7 @@ interface EntryFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   entry?: Entry | null;
+  hourlyRate: number;
   onSubmit: (values: EntryFormValues) => Promise<void>;
   isSubmitting: boolean;
 }
@@ -62,6 +63,7 @@ export function EntryFormDialog({
   open,
   onOpenChange,
   entry,
+  hourlyRate,
   onSubmit,
   isSubmitting,
 }: EntryFormDialogProps) {
@@ -81,7 +83,8 @@ export function EntryFormDialog({
     Number(watched.workHours) || 0,
     Number(watched.travelHours) || 0,
     Number(watched.reviews) || 0,
-    Number(watched.tips) || 0
+    Number(watched.tips) || 0,
+    hourlyRate
   );
 
   useEffect(() => {

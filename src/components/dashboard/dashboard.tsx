@@ -17,9 +17,10 @@ import type { Entry } from "@/types/entry";
 
 interface DashboardProps {
   initialEntries: Entry[];
+  hourlyRate: number;
 }
 
-export function Dashboard({ initialEntries }: DashboardProps) {
+export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -138,7 +139,7 @@ export function Dashboard({ initialEntries }: DashboardProps) {
           <DashboardSkeleton />
         ) : (
           <>
-            <SummaryCards entries={filteredEntries} />
+            <SummaryCards entries={filteredEntries} hourlyRate={hourlyRate} />
 
             <DateRangeFilter
               startDate={startDate}
@@ -163,6 +164,7 @@ export function Dashboard({ initialEntries }: DashboardProps) {
             ) : (
               <EntriesTable
                 entries={filteredEntries}
+                hourlyRate={hourlyRate}
                 onEdit={(entry) => {
                   setEditingEntry(entry);
                   setFormOpen(true);
@@ -181,6 +183,7 @@ export function Dashboard({ initialEntries }: DashboardProps) {
           if (!open) setEditingEntry(null);
         }}
         entry={editingEntry}
+        hourlyRate={hourlyRate}
         onSubmit={handleSave}
         isSubmitting={isSubmitting}
       />

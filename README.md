@@ -6,6 +6,7 @@ A production-ready web app for tracking moving job earnings. Built with Next.js,
 
 - Google OAuth sign-in
 - Row-level data isolation — each user only sees their own entries
+- Per-user hourly rate settings (default $25/hr)
 - Dashboard with earnings summary cards
 - Date range filtering
 - Add, edit, and delete job entries
@@ -110,6 +111,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 11. **Share the sheet** with the service account email (from step 6) as **Editor**.
 
+12. Create a second sheet tab named **`Settings`** with header row:
+
+    | A          | B           |
+    |------------|-------------|
+    | User Email | Hourly Rate |
+
+    Each user gets one row when they save their settings. New users default to $25/hr.
+
 ### Part 3: NextAuth Secret
 
 Generate a secret:
@@ -146,8 +155,10 @@ NEXTAUTH_URL=http://localhost:3000
 ## Earnings Formula
 
 ```
-earnings = (workHours + travelHours) × $25 + (reviews × $20) + tips
+earnings = (workHours + travelHours) × hourlyRate + (reviews × $20) + tips
 ```
+
+`hourlyRate` is configured per user on the **Settings** page (default: $25).
 
 ## Sheet Migration
 
@@ -179,15 +190,18 @@ src/
   app/
     login/page.tsx
     dashboard/page.tsx
+    settings/page.tsx
     api/auth/[...nextauth]/route.ts
     api/entries/route.ts
     api/entries/[id]/route.ts
+    api/settings/route.ts
   components/
     dashboard/          # Dashboard UI components
     ui/                 # shadcn/ui components
   lib/
     auth.ts             # NextAuth configuration
     googleSheets.ts     # Sheets CRUD with row-level ownership
+    settings.ts         # Per-user hourly rate settings
     session.ts          # Session email helpers
     calculations.ts     # Earnings calculations
     format.ts           # Currency and date formatting

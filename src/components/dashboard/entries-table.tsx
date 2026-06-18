@@ -24,11 +24,17 @@ import {
 
 interface EntriesTableProps {
   entries: Entry[];
+  hourlyRate: number;
   onEdit: (entry: Entry) => void;
   onDelete: (entry: Entry) => void;
 }
 
-export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
+export function EntriesTable({
+  entries,
+  hourlyRate,
+  onEdit,
+  onDelete,
+}: EntriesTableProps) {
   return (
     <>
       <div className="hidden rounded-lg border bg-card md:block">
@@ -57,7 +63,7 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
                   {formatCurrency(entry.tips)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {formatCurrency(calculateEntryEarnings(entry))}
+                  {formatCurrency(calculateEntryEarnings(entry, hourlyRate))}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
@@ -113,7 +119,7 @@ export function EntriesTable({ entries, onEdit, onDelete }: EntriesTableProps) {
               <div className="col-span-2">
                 <p className="text-muted-foreground">Daily Earnings</p>
                 <p className="text-lg font-semibold">
-                  {formatCurrency(calculateEntryEarnings(entry))}
+                  {formatCurrency(calculateEntryEarnings(entry, hourlyRate))}
                 </p>
               </div>
             </CardContent>
