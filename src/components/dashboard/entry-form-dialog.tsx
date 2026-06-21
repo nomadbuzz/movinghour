@@ -134,7 +134,7 @@ export function EntryFormDialog({
                 id="workHours"
                 type="number"
                 min={0}
-                step="0.5"
+                step="0.01"
                 {...register("workHours", numberInputProps)}
               />
               {errors.workHours && (
@@ -149,7 +149,7 @@ export function EntryFormDialog({
                 id="travelHours"
                 type="number"
                 min={0}
-                step="0.5"
+                step="0.01"
                 {...register("travelHours", numberInputProps)}
               />
               {errors.travelHours && (
