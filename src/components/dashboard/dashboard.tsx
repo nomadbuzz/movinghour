@@ -9,18 +9,22 @@ import { DateRangeFilter } from "@/components/dashboard/date-range-filter";
 import { DeleteEntryDialog } from "@/components/dashboard/delete-entry-dialog";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { EntriesTable } from "@/components/dashboard/entries-table";
-import { EntryFormDialog } from "@/components/dashboard/entry-form-dialog";
+import {
+  EntryFormDialog,
+  type EntrySubmitValues,
+} from "@/components/dashboard/entry-form-dialog";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import type { Entry } from "@/types/entry";
+import type { Settings } from "@/types/settings";
 
 interface DashboardProps {
   initialEntries: Entry[];
-  hourlyRate: number;
+  settings: Settings;
 }
 
-export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
+export function Dashboard({ initialEntries, settings }: DashboardProps) {
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -55,13 +59,7 @@ export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
     });
   }, [entries, startDate, endDate]);
 
-  const handleSave = async (values: {
-    date: string;
-    workHours: number;
-    travelHours: number;
-    reviews: number;
-    tips: number;
-  }) => {
+  const handleSave = async (values: EntrySubmitValues) => {
     setIsSubmitting(true);
     try {
       const isEditing = !!editingEntry;
@@ -139,7 +137,7 @@ export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
           <DashboardSkeleton />
         ) : (
           <>
-            <SummaryCards entries={filteredEntries} hourlyRate={hourlyRate} />
+            <SummaryCards entries={filteredEntries} settings={settings} />
 
             <DateRangeFilter
               startDate={startDate}
@@ -164,7 +162,7 @@ export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
             ) : (
               <EntriesTable
                 entries={filteredEntries}
-                hourlyRate={hourlyRate}
+                settings={settings}
                 onEdit={(entry) => {
                   setEditingEntry(entry);
                   setFormOpen(true);
@@ -183,7 +181,7 @@ export function Dashboard({ initialEntries, hourlyRate }: DashboardProps) {
           if (!open) setEditingEntry(null);
         }}
         entry={editingEntry}
-        hourlyRate={hourlyRate}
+        settings={settings}
         onSubmit={handleSave}
         isSubmitting={isSubmitting}
       />

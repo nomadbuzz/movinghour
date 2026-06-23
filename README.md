@@ -113,11 +113,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 12. Create a second sheet tab named **`Settings`** with header row:
 
-    | A          | B           |
-    |------------|-------------|
-    | User Email | Hourly Rate |
+    | A   | B     |
+    |-----|-------|
+    | Key | Value |
 
-    Each user gets one row when they save their settings. New users default to $25/hr.
+    Settings are stored per user using scoped keys (e.g. `user@gmail.com::hourlyRate`). Defaults are applied automatically if no rows exist.
 
 ### Part 3: NextAuth Secret
 
@@ -155,10 +155,10 @@ NEXTAUTH_URL=http://localhost:3000
 ## Earnings Formula
 
 ```
-earnings = (workHours + travelHours) × hourlyRate + (reviews × $20) + tips
+earnings = (workHours + travelHours) × hourlyRate + (reviews × reviewBonus) + tips
 ```
 
-`hourlyRate` is configured per user on the **Settings** page (default: $25).
+Work and travel time are stored as decimal hours (e.g. 8h 26m = 8.4333). Both `hourlyRate` and `reviewBonus` are configured per user on the **Settings** page (defaults: $25/hr and $20/review).
 
 ## Sheet Migration
 

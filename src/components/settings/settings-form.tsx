@@ -16,13 +16,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DEFAULT_HOURLY_RATE } from "@/types/settings";
+import { DEFAULT_SETTINGS, type Settings } from "@/types/settings";
 
 const settingsFormSchema = z.object({
   hourlyRate: z
     .number({ error: "Hourly rate is required" })
     .gt(0, "Hourly rate must be greater than 0")
     .max(1000, "Hourly rate cannot exceed 1000"),
+  reviewBonus: z
+    .number({ error: "Review bonus is required" })
+    .gt(0, "Review bonus must be greater than 0")
+    .max(1000, "Review bonus cannot exceed 1000"),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -36,10 +40,10 @@ const numberInputProps = {
 } as const;
 
 interface SettingsFormProps {
-  initialHourlyRate: number;
+  initialSettings: Settings;
 }
 
-export function SettingsForm({ initialHourlyRate }: SettingsFormProps) {
+export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const {
     register,
     handleSubmit,
@@ -47,7 +51,8 @@ export function SettingsForm({ initialHourlyRate }: SettingsFormProps) {
   } = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
     defaultValues: {
-      hourlyRate: initialHourlyRate || DEFAULT_HOURLY_RATE,
+      hourlyRate: initialSettings.hourlyRate || DEFAULT_SETTINGS.hourlyRate,
+      reviewBonus: initialSettings.reviewBonus || DEFAULT_SETTINGS.reviewBonus,
     },
   });
 
@@ -85,27 +90,46 @@ export function SettingsForm({ initialHourlyRate }: SettingsFormProps) {
           <CardHeader>
             <CardTitle>Earnings</CardTitle>
             <CardDescription>
-              Your hourly rate is used to calculate earnings from work and travel
-              hours. Review bonus remains $20 per review.
+              Your hourly rate applies to work and travel time. Review bonus is
+              added per review.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
-                <Input
-                  id="hourlyRate"
-                  type="number"
-                  min={0.01}
-                  max={1000}
-                  step="0.01"
-                  {...register("hourlyRate", numberInputProps)}
-                />
-                {errors.hourlyRate && (
-                  <p className="text-sm text-destructive">
-                    {errors.hourlyRate.message}
-                  </p>
-                )}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
+                  <Input
+                    id="hourlyRate"
+                    type="number"
+                    min={0.01}
+                    max={1000}
+                    step="0.01"
+                    {...register("hourlyRate", numberInputProps)}
+                  />
+                  {errors.hourlyRate && (
+                    <p className="text-sm text-destructive">
+                      {errors.hourlyRate.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="reviewBonus">Review Bonus ($)</Label>
+                  <Input
+                    id="reviewBonus"
+                    type="number"
+                    min={0.01}
+                    max={1000}
+                    step="0.01"
+                    {...register("reviewBonus", numberInputProps)}
+                  />
+                  {errors.reviewBonus && (
+                    <p className="text-sm text-destructive">
+                      {errors.reviewBonus.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <Button type="submit" disabled={isSubmitting}>

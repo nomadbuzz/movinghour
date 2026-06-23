@@ -2,8 +2,9 @@ import { redirect } from "next/navigation";
 
 import { SettingsForm } from "@/components/settings/settings-form";
 import { auth } from "@/lib/auth";
-import { getUserSettings } from "@/lib/settings";
+import { getSettings } from "@/lib/settings";
 import { getSessionEmail } from "@/lib/session";
+import { DEFAULT_SETTINGS } from "@/types/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,14 +16,13 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  let hourlyRate = 25;
+  let settings = DEFAULT_SETTINGS;
 
   try {
-    const settings = await getUserSettings(email);
-    hourlyRate = settings.hourlyRate;
+    settings = await getSettings(email);
   } catch (error) {
     console.error("Failed to load settings:", error);
   }
 
-  return <SettingsForm initialHourlyRate={hourlyRate} />;
+  return <SettingsForm initialSettings={settings} />;
 }

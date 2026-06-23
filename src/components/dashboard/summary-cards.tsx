@@ -1,4 +1,4 @@
-import { Clock, DollarSign, Gauge, MessageSquare, Wallet } from "lucide-react";
+import { Clock, DollarSign, MessageSquare, Star, Wallet } from "lucide-react";
 
 import {
   calculateTotalEarnings,
@@ -8,6 +8,7 @@ import {
 } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
 import type { Entry } from "@/types/entry";
+import type { Settings } from "@/types/settings";
 import {
   Card,
   CardContent,
@@ -17,22 +18,16 @@ import {
 
 interface SummaryCardsProps {
   entries: Entry[];
-  hourlyRate: number;
+  settings: Pick<Settings, "hourlyRate" | "reviewBonus">;
 }
 
-export function SummaryCards({ entries, hourlyRate }: SummaryCardsProps) {
+export function SummaryCards({ entries, settings }: SummaryCardsProps) {
   const cards = [
-    {
-      key: "hourlyRate",
-      title: "Hourly Rate",
-      icon: Gauge,
-      value: `${formatCurrency(hourlyRate)}/hr`,
-    },
     {
       key: "earnings",
       title: "Total Earnings",
       icon: DollarSign,
-      value: formatCurrency(calculateTotalEarnings(entries, hourlyRate)),
+      value: formatCurrency(calculateTotalEarnings(entries, settings)),
     },
     {
       key: "hours",
@@ -51,6 +46,12 @@ export function SummaryCards({ entries, hourlyRate }: SummaryCardsProps) {
       title: "Total Tips",
       icon: Wallet,
       value: formatCurrency(calculateTotalTips(entries)),
+    },
+    {
+      key: "reviewBonus",
+      title: "Review Bonus",
+      icon: Star,
+      value: formatCurrency(settings.reviewBonus),
     },
   ] as const;
 

@@ -4,7 +4,9 @@ import { Pencil, Trash2 } from "lucide-react";
 
 import { calculateEntryEarnings } from "@/lib/calculations";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { formatDecimalHours } from "@/lib/time";
 import type { Entry } from "@/types/entry";
+import type { Settings } from "@/types/settings";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,14 +26,14 @@ import {
 
 interface EntriesTableProps {
   entries: Entry[];
-  hourlyRate: number;
+  settings: Pick<Settings, "hourlyRate" | "reviewBonus">;
   onEdit: (entry: Entry) => void;
   onDelete: (entry: Entry) => void;
 }
 
 export function EntriesTable({
   entries,
-  hourlyRate,
+  settings,
   onEdit,
   onDelete,
 }: EntriesTableProps) {
@@ -42,8 +44,8 @@ export function EntriesTable({
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
-              <TableHead className="text-right">Work Hrs</TableHead>
-              <TableHead className="text-right">Travel Hrs</TableHead>
+              <TableHead className="text-right">Work Time</TableHead>
+              <TableHead className="text-right">Travel Time</TableHead>
               <TableHead className="text-right">Reviews</TableHead>
               <TableHead className="text-right">Tips</TableHead>
               <TableHead className="text-right">Daily Earnings</TableHead>
@@ -56,14 +58,18 @@ export function EntriesTable({
                 <TableCell className="font-medium">
                   {formatDate(entry.date)}
                 </TableCell>
-                <TableCell className="text-right">{entry.workHours}</TableCell>
-                <TableCell className="text-right">{entry.travelHours}</TableCell>
+                <TableCell className="text-right">
+                  {formatDecimalHours(entry.workHours)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatDecimalHours(entry.travelHours)}
+                </TableCell>
                 <TableCell className="text-right">{entry.reviews}</TableCell>
                 <TableCell className="text-right">
                   {formatCurrency(entry.tips)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {formatCurrency(calculateEntryEarnings(entry, hourlyRate))}
+                  {formatCurrency(calculateEntryEarnings(entry, settings))}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
@@ -101,12 +107,14 @@ export function EntriesTable({
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-muted-foreground">Work Hrs</p>
-                <p className="font-medium">{entry.workHours}</p>
+                <p className="text-muted-foreground">Work Time</p>
+                <p className="font-medium">{formatDecimalHours(entry.workHours)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Travel Hrs</p>
-                <p className="font-medium">{entry.travelHours}</p>
+                <p className="text-muted-foreground">Travel Time</p>
+                <p className="font-medium">
+                  {formatDecimalHours(entry.travelHours)}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Reviews</p>
@@ -119,7 +127,7 @@ export function EntriesTable({
               <div className="col-span-2">
                 <p className="text-muted-foreground">Daily Earnings</p>
                 <p className="text-lg font-semibold">
-                  {formatCurrency(calculateEntryEarnings(entry, hourlyRate))}
+                  {formatCurrency(calculateEntryEarnings(entry, settings))}
                 </p>
               </div>
             </CardContent>

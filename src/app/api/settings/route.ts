@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
-import { getUserSettings, saveUserSettings } from "@/lib/settings";
+import { getSettings, saveSettings } from "@/lib/settings";
 import { getSessionEmail } from "@/lib/session";
 
 const settingsSchema = z
   .object({
     hourlyRate: z.number().gt(0, "Hourly rate must be greater than 0").max(1000),
+    reviewBonus: z.number().gt(0, "Review bonus must be greater than 0").max(1000),
   })
   .strict();
 
@@ -20,7 +21,7 @@ export async function GET() {
   }
 
   try {
-    const settings = await getUserSettings(email);
+    const settings = await getSettings(email);
     return NextResponse.json(settings);
   } catch (error) {
     console.error("Failed to fetch settings:", error);
@@ -50,7 +51,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const settings = await saveUserSettings(email, parsed.data.hourlyRate);
+    const settings = await saveSettings(email, parsed.data);
     return NextResponse.json(settings);
   } catch (error) {
     console.error("Failed to save settings:", error);
